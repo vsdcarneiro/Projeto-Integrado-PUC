@@ -94,7 +94,7 @@ def train(X_train, X_test, y_train, y_test, model):
         conf_matrix = plot_confusion_matrix(y_test, y_pred)
         temp_name = 'confusion_matrix.png'
         conf_matrix.savefig(temp_name)
-        mlflow.log_artifact(temp_name, "confusion-matrix-plots")
+        mlflow.log_artifact(temp_name, "confusion-matrix-plot")
         try:
             os.remove(temp_name)
         except FileNotFoundError as e:
@@ -141,23 +141,23 @@ if __name__ == '__main__':
     # Dividir o dataset em dados de treinamento, teste e validação
     # Treinamento/Teste
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y)
-    # Validação
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_train, y_train, test_size=0.2)
+        X, y, test_size=0.2)
+    # Teste/Validação
+    X_test, X_val, y_test, y_val = train_test_split(
+        X_test, y_test, test_size=0.5, stratify=y_test)
 
     # Padronizar dados
     scaler = StandardScaler()
 
     X_train = scaler.fit_transform(X_train)
-    # Salvar scaler ajustado
+    # Salvar o 'StandardScaler' ajustado
     pickle.dump(scaler, open('scaler/scaler.pkl', 'wb'))
     X_test = scaler.transform(X_test)
     X_val = scaler.transform(X_val)
 
     # Treinar modelo
     train(X_train, X_test, y_train, y_test, ('DecisionTreeClassifier',
-          DecisionTreeClassifier(criterion='entropy', max_depth=12)))
+          DecisionTreeClassifier(criterion='entropy', max_depth=19)))
     train(
         X_train,
         X_test,

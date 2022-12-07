@@ -1,11 +1,13 @@
 import mlflow
 import pickle
+import warnings
+warnings.filterwarnings('ignore')
 
 # Conectar ao servidor
 mlflow.set_tracking_uri('http://localhost:5000')
 
 # Local do modelo
-logged_model = 'runs:/39e13c8bcec144f38bc87d439d8307bd/model'
+logged_model = 'runs:/4561c23d8cad405eb84c001d0a838016/model'
 # Carregar o modelo
 loaded_model = mlflow.pyfunc.load_model(logged_model)
 
@@ -13,7 +15,7 @@ loaded_model = mlflow.pyfunc.load_model(logged_model)
 # loaded_model = pickle.load(open('models/SVC.sav', 'rb'))
 
 # Prever em um Numpy Array
-data = [[9.22512984e+00, 1.93805402e+02, 1.11685292e+04, 9.25447109e+00,
+data = [[9.22512984e+00, 1.45805402e+02, 1.10685292e+04, 9.25447109e+00,
         3.07583374e+02, 5.44659021e+02, 8.16639675e+00, 7.28774595e+01,
         3.89516525e+00],
         [9.55484504e+00, 1.48096691e+02, 1.38596765e+04, 8.19642265e+00,
