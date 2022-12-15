@@ -65,6 +65,33 @@ def eval_metrics(y_test, y_pred):
     return accuracy, precision, recall, f1
 
 
+# Função que retorna os parâmetros do modelo
+def get_params(model):
+    if model[0] == 'DecisionTreeClassifier':
+        params = model[1].get_params()
+        selected_params_ = {
+            'criterion': params['criterion'],
+            'splitter': params['splitter'],
+            'max_depth': params['max_depth']
+        }
+        return selected_params_
+    elif model[0] == 'KNeighborsClassifier':
+        params = model[1].get_params()
+        selected_params_ = {
+            'n_neighbors': params['n_neighbors'],
+            'weights': params['weights']
+        }
+        return selected_params_
+    elif model[0] == 'SVC':
+        params = model[1].get_params()
+        selected_params_ = {
+            'C': params['C'],
+            'gamma': params['gamma'],
+            'kernel': params['kernel']
+        }
+        return selected_params_
+
+
 # Função que realiza o treinamento do modelo
 def train(X_train, X_test, y_train, y_test, model):
     with mlflow.start_run(run_name=model[0]):
@@ -72,13 +99,13 @@ def train(X_train, X_test, y_train, y_test, model):
         mlflow.set_tags(tags)
 
         clf = model[1]
-        # Ajustar modelo ao conjunto de dados de treinamento
+        # Ajustar classificador ao conjunto de dados de treinamento
         clf.fit(X_train, y_train)
-        # Realizar predições no conjunto de dados de teste
+        # Realizar previsões no conjunto de dados de teste
         y_pred = clf.predict(X_test)
 
-        # Salvar modelo
-        pickle.dump(clf, open(f'models/{model[0]}.sav', 'wb'))
+        # Salvar modelo com 'pickle'
+        # pickle.dump(clf, open(f'models/{model[0]}.sav', 'wb'))
 
         # Métricas para avaliar a qualidade das previsões do modelo
         accuracy, precision, recall, f1 = eval_metrics(y_test, y_pred)
@@ -100,7 +127,10 @@ def train(X_train, X_test, y_train, y_test, model):
         except FileNotFoundError as e:
             print(f'{temp_name} file is not found')
 
-        # Registro das métricas no mlflow
+        # Registro dos parâmetros e das métricas no mlflow
+        model_params = get_params((model[0], clf))
+        for key, value in model_params.items():
+            mlflow.log_param(key, value)
         mlflow.log_metric('accuracy', accuracy)
         mlflow.log_metric('precision', precision)
         mlflow.log_metric('recall', recall)
@@ -155,9 +185,20 @@ if __name__ == '__main__':
     X_test = scaler.transform(X_test)
     X_val = scaler.transform(X_val)
 
-    # Treinar modelo
+    # Treinar classificadores
+    #  == DecisionTreeClassifier ==
+    # Parâmetros padrões
+    train(X_train, X_test, y_train, y_test, ('DecisionTreeClassifier',
+          DecisionTreeClassifier()))
+    # Parâmetros ajustados
     train(X_train, X_test, y_train, y_test, ('DecisionTreeClassifier',
           DecisionTreeClassifier(criterion='entropy', max_depth=19)))
+
+    # == KNeighborsClassifier ==
+    # Parâmetros padrões
+    train(X_train, X_test, y_train, y_test,
+          ('KNeighborsClassifier', KNeighborsClassifier()))
+    # Parâmetros ajustados
     train(
         X_train,
         X_test,
@@ -166,4 +207,9 @@ if __name__ == '__main__':
         ('KNeighborsClassifier',
          KNeighborsClassifier(
              n_neighbors=1)))
+
+    # == SVC ==
+    # Parâmetros padrões
+    train(X_train, X_test, y_train, y_test, ('SVC', SVC()))
+    # Parâmetros ajustados
     train(X_train, X_test, y_train, y_test, ('SVC', SVC(C=1, gamma=1)))
