@@ -98,6 +98,7 @@ def train(X_train, X_test, y_train, y_test, model):
         # Registro das tags
         mlflow.set_tags(tags)
 
+        # Instanciar classificador
         clf = model[1]
         # Ajustar classificador ao conjunto de dados de treinamento
         clf.fit(X_train, y_train)
@@ -153,7 +154,7 @@ if __name__ == '__main__':
     data['Trihalomethanes'].fillna(
         data['Trihalomethanes'].mean(), inplace=True)
 
-    # Remover outilers que estão a mais de 3 desvios padrão da média
+    # Remover outliers que estão a mais de 3 desvios padrão da média
     for column in data.columns:
         mean = data[column].mean()
         std = data[column].std()
@@ -185,7 +186,7 @@ if __name__ == '__main__':
     X_test = scaler.transform(X_test)
     X_val = scaler.transform(X_val)
 
-    # Treinar classificadores
+    # Treinar classificador
     #  == DecisionTreeClassifier ==
     # Parâmetros padrões
     train(X_train, X_test, y_train, y_test, ('DecisionTreeClassifier',
