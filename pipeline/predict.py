@@ -17,7 +17,7 @@ loaded_model = mlflow.pyfunc.load_model(logged_model)
 # Carregar o 'StandardScaler' ajustado
 scaler = pickle.load(open('scaler/scaler.pkl', 'rb'))
 
-
+# Função que prever um valor de saída (0 ou 1) com base nos valores de entrada.
 def predict_quality(X):
     try:
         # Transformar a escala dos valor de 'X'
